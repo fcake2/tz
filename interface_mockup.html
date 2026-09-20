@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель мастера-приемщика</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f5f7;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 20px;
+        }
+        .title-block h1 {
+            margin: 0 0 5px 0;
+            font-size: 20px;
+            color: #333;
+        }
+        .title-block p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .finance-block {
+            background-color: #e8f4f8;
+            border: 1px solid #b8daff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #0056b3;
+            display: flex;
+            justify-content: space-between;
+        }
+        .status-badge {
+            display: inline-block;
+            background-color: #ffeeba;
+            color: #856404;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0px;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #333;
+            text-align: left;
+            padding: 12px;
+            font-size: 13px;
+            border-bottom: 2px solid #dee2e6;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        .row-custom {
+            background-color: #fff3cd;
+        }
+        .type-label {
+            color: #666;
+            font-size: 13px;
+        }
+        .media-btn {
+            background-color: #e2e3e5;
+            color: #383d41;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+        .media-btn:hover {
+            background-color: #d6d8db;
+        }
+        .media-btn.video-btn {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .media-btn.video-btn:hover {
+            background-color: #bee5eb;
+        }
+        .price-input {
+            width: 70px;
+            padding: 4px;
+            border: 1px solid #28a745;
+            border-radius: 3px;
+            color: #28a745;
+            font-weight: bold;
+        }
+        /* Expandable Row Styles */
+        .details-row {
+            display: none;
+            background-color: #f8f9fa;
+        }
+        .details-content {
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            border-left: 3px solid #007bff;
+        }
+        .media-thumbnail {
+            width: 120px;
+            height: 80px;
+            background-color: #ddd;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+        .media-thumbnail.video::after {
+            content: '▶';
+            position: absolute;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .table-footer-total {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: right;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.1s, transform 0.1s;
+        }
+        .btn:active {
+            opacity: 0.8;
+            transform: scale(0.98);
+        }
+        /* Click animation class */
+        .btn-clicked {
+            animation: pulse 0.3s ease-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+            50% { transform: scale(0.95); box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+        .btn-success.btn-clicked {
+            animation: pulse-success 0.3s ease-out;
+        }
+        @keyframes pulse-success {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            50% { transform: scale(0.95); box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+        .btn-primary { background-color: #007bff; }
+        .btn-success { background-color: #28a745; }
+        
+        .audit-trail {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .audit-title {
+            font-weight: bold;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .audit-item {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        .comment {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-box {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .channel-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .channel-option:hover {
+            background: #f8f9fa;
+        }
+        .sip-caller {
+            text-align: center;
+        }
+        .sip-avatar {
+            width: 80px;
+            height: 80px;
+            background: #e2e3e5;
+            border-radius: 50%;
+            margin: 0 auto 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        .sip-status {
+            color: #28a745;
+            margin-bottom: 20px;
+            font-weight: bold;
+            animation: blink 1.5s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .sip-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        АВТОСЕРВИС "ДВИЖОК" | Панель мастера-приемщика
+    </div>
+    
+    <div class="content">
+        <div class="title-block">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1>Заказ-наряд №12345: Toyota Camry (А123АА)</h1>
+                    <p>Клиент: Иван Иванов (+7 999 123-45-67)</p>
+                </div>
+                <button class="btn btn-primary" style="background-color: #6c757d; display: flex; align-items: center; gap: 8px;" onclick="document.getElementById('modal-history').style.display='flex'">
+                    📖 История и рекомендации (VIN)
+                </button>
+            </div>
+        </div>
+
+        <div class="finance-block">
+            <span id="finance-breakdown">Исходная смета: 15 000 руб. &nbsp; + &nbsp; Доп. работы: 0 руб.</span>
+            <span id="finance-total">ИТОГО: 15 000 руб.</span>
+        </div>
+
+        <div class="status-badge">🟡 Черновик (Оценка)</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Тип</th>
+                    <th>Наименование</th>
+                    <th>Медиа</th>
+                    <th>Кол-во</th>
+                    <th>Цена (руб)</th>
+                    <th>Сумма (руб)</th>
+                    <th>Решение</th>
+                </tr>
+            </thead>
+            <tbody id="works-table-body">
+                <!-- Row 1: Standard Work with Photo -->
+                <tr>
+                    <td class="type-label">🔧 Раб.</td>
+                    <td>Замена шаровой опоры</td>
+                    <td>
+                        <button class="media-btn" onclick="toggleDetails('details-1')">
+                            📷 2 фото ▾
+                        </button>
+                    </td>
+                    <td>1 шт</td>
+                    <td>2 000</td>
+                    <td class="item-sum">2 000</td>
+                    <td><input type="checkbox" class="work-checkbox" value="2000" onchange="recalculateTotals()"></td>
+                </tr>
+                <!-- Details for Row 1 -->
+                <tr id="details-1" class="details-row">
+                    <td colspan="7" style="padding: 0;">
+                        <div class="details-content">
+                            <div class="media-thumbnail">Фото люфта.jpg</div>
+                            <div class="media-thumbnail">Пыльник.jpg</div>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Row 2: Part without media -->
+                <tr>
+                    <td class="type-label">📦 Зап.</td>
+                    <td>Шаровая опора (арт. 9982)</td>
+                    <td>-</td>
+                    <td>1 шт</td>
+                    <td>3 000</td>
+                    <td class="item-sum">3 000</td>
+                    <td><input type="checkbox" class="work-checkbox" value="3000" onchange="recalculateTotals()"></td>
+                </tr>
+
+                <!-- Row 3: Custom task with video -->
+                <tr class="row-custom">
+                    <td class="type-label" style="color: #856404; font-weight: bold;">⚠️ Нест.</td>
+                    <td>
+                        <strong>Демонтаж проводки (нештатная)</strong>
+                        <div class="comment">Комм. механика: всё на изоленте, надо распутывать...</div>
+                    </td>
+                    <td>
+                        <button class="media-btn video-btn" onclick="toggleDetails('details-3')">
+                            🎥 1 видео ▾
+                        </button>
+                    </td>
+                    <td>1.5 н/ч</td>
+                    <td><input type="number" class="price-input" id="custom-price" value="1500" step="100" oninput="updateCustomPrice(this.value)"></td>
+                    <td class="item-sum" id="custom-sum-display">1 500</td>
+                    <td><input type="checkbox" class="work-checkbox" id="custom-checkbox" value="1500" onchange="recalculateTotals()"></td>
+                </tr>
+                <!-- Details for Row 3 -->
+                <tr id="details-3" class="details-row">
+                    <td colspan="7" style="padding: 0; background-color: #fff3cd;">
+                        <div class="details-content" style="border-left-color: #ffc107;">
+                            <div class="media-thumbnail video">Видео проводки.mp4</div>
+                            <div style="font-size: 13px; color: #666; max-width: 400px; padding-top: 10px;">
+                                Механик прикрепил видео для подтверждения сложности работ. Видео будет показано клиенту.
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="table-footer-total">
+            Согласовано дополнительных работ на сумму: <span id="selected-sum">0</span> руб.
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="animateAndOpen(this, 'modal-send')">✉ Отправить клиенту</button>
+            <button class="btn btn-success" onclick="animateAndOpen(this, 'modal-sip')">📞 Согласовать по телефону</button>
+        </div>
+
+        <div class="audit-trail">
+            <div class="audit-title">История изменений (Audit Trail):</div>
+            <div class="audit-item">🕒 14:10 - Механик Сидоров: Создал дефектовку. Прикрепил 2 фото.</div>
+            <div class="audit-item">🕒 14:12 - Механик Сидоров: Добавил задачу "Демонтаж проводки". Прикрепил 1 видео. Требует расценки.</div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Send options -->
+<div id="modal-send" class="modal-overlay" onclick="closeModal(event, 'modal-send')">
+    <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-title">Отправить предложение клиенту</div>
+        <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Выберите каналы для отправки ссылки на согласование (клиент: Иван Иванов):</p>
+        
+        <label class="channel-option">
+            <input type="checkbox" checked> 📱 SMS (+7 999 123-45-67)
+        </label>
+        <label class="channel-option">
+            <input type="checkbox" checked> 💬 WhatsApp (+7 999 123-45-67)
+        </label>
+        <label class="channel-option">
+            <input type="checkbox"> ✈️ Telegram (@ivan_ivanov)
+        </label>
+        <label class="channel-option">
+            <input type="checkbox"> ✉️ Email (ivan@example.com)
+        </label>
+        <label class="channel-option">
+            <input type="checkbox"> 🟣 Messenger Max (+7 999 123-45-67)
+        </label>
+        <label class="channel-option">
+            <input type="checkbox"> 🔔 PUSH в приложение / на сайт "Движок"
+        </label>
+        
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn" style="background: #e2e3e5; color: #333;" onclick="document.getElementById('modal-send').style.display='none'">Отмена</button>
+            <button class="btn btn-primary" onclick="document.getElementById('modal-send').style.display='none'; alert('Ссылка успешно отправлена в выбранные каналы!');">Отправить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: SIP Call -->
+<div id="modal-sip" class="modal-overlay">
+    <div class="modal-box" style="width: 300px;">
+        <div class="sip-caller">
+            <div class="sip-avatar">👤</div>
+            <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">Иван Иванов</div>
+            <div style="font-size: 14px; color: #666; margin-bottom: 15px;">+7 999 123-45-67</div>
+            
+            <div class="sip-status">Установка соединения... 📞</div>
+            
+            <div class="sip-buttons">
+                <button class="btn btn-success" style="border-radius: 50%; width: 50px; height: 50px; padding: 0;">🎤</button>
+                <button class="btn btn-danger" style="border-radius: 50%; width: 50px; height: 50px; padding: 0;" onclick="document.getElementById('modal-sip').style.display='none'">❌</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: History and Recommendations -->
+<div id="modal-history" class="modal-overlay" onclick="closeModal(event, 'modal-history')">
+    <div class="modal-box" style="width: 700px; max-height: 80vh; overflow-y: auto;" onclick="event.stopPropagation()">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="modal-title" style="margin-bottom: 0;">История ремонтов по VIN: JT153...9834</div>
+            <button class="btn btn-danger" style="padding: 5px 10px;" onclick="document.getElementById('modal-history').style.display='none'">Закрыть</button>
+        </div>
+        
+        <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #0056b3;">⚠️ Актуальные рекомендации</h3>
+            <div style="background: #fff; border-left: 4px solid #ffc107; padding: 10px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-weight: bold; font-size: 14px;">Замена шаровой опоры (Слева спереди)</div>
+                <div style="font-size: 12px; color: #666;">Отложено клиентом: 15.06.2026 (3 месяца назад)</div>
+            </div>
+            <div style="background: #fff; border-left: 4px solid #ffc107; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-weight: bold; font-size: 14px;">Замена тормозной жидкости</div>
+                <div style="font-size: 12px; color: #666;">Рекомендовано по пробегу (120 000 км)</div>
+            </div>
+        </div>
+
+        <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #333;">📖 История прошлых заездов</h3>
+        
+        <table style="margin-bottom: 0;">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Пробег</th>
+                    <th>Заказ-наряд</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>15.06.2026</td>
+                    <td>115 400 км</td>
+                    <td><a href="#" style="color: #007bff; text-decoration: none;">№11842 (ТО-110)</a></td>
+                    <td>12 500 руб.</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding: 5px 15px 15px 15px; border-top: none; background: #f8f9fa;">
+                        <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #666;">
+                            <li>Замена масла ДВС и фильтра</li>
+                            <li>Замена воздушного фильтра</li>
+                            <li>Диагностика ходовой части</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>10.11.2025</td>
+                    <td>104 200 км</td>
+                    <td><a href="#" style="color: #007bff; text-decoration: none;">№9541 (Ремонт ДВС)</a></td>
+                    <td>34 200 руб.</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="padding: 5px 15px 15px 15px; border-top: none; background: #f8f9fa;">
+                        <ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #666;">
+                            <li>Замена прокладки клапанной крышки</li>
+                            <li>Чистка дроссельной заслонки</li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const INITIAL_COST = 15000;
+
+    // Функция пересчета сумм
+    function recalculateTotals() {
+        const checkboxes = document.querySelectorAll('.work-checkbox');
+        let additionalSum = 0;
+        
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                additionalSum += parseInt(cb.value) || 0;
+            }
+        });
+        
+        const totalSum = INITIAL_COST + additionalSum;
+        
+        // Форматирование чисел с пробелами
+        const formatMoney = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+        // Обновление верхнего блока
+        document.getElementById('finance-breakdown').innerHTML = `Исходная смета: ${formatMoney(INITIAL_COST)} руб. &nbsp; + &nbsp; Доп. работы: ${formatMoney(additionalSum)} руб.`;
+        document.getElementById('finance-total').innerHTML = `ИТОГО: ${formatMoney(totalSum)} руб.`;
+        
+        // Обновление нижнего блока
+        document.getElementById('selected-sum').innerText = formatMoney(additionalSum);
+    }
+    
+    // Функция обновления цены для нестандартной работы
+    function updateCustomPrice(newPrice) {
+        let price = parseInt(newPrice);
+        if (isNaN(price) || price < 0) price = 0;
+        
+        const formatMoney = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        
+        document.getElementById('custom-sum-display').innerText = formatMoney(price);
+        document.getElementById('custom-checkbox').value = price;
+        
+        recalculateTotals();
+    }
+
+    // Функция анимации кнопки и открытия модалки
+    function animateAndOpen(btnElement, modalId) {
+        // Добавляем класс анимации
+        btnElement.classList.add('btn-clicked');
+        
+        // Убираем класс после завершения анимации, чтобы можно было кликать снова
+        setTimeout(() => {
+            btnElement.classList.remove('btn-clicked');
+            // Открываем модалку
+            document.getElementById(modalId).style.display = 'flex';
+        }, 300);
+    }
+    
+    // Закрытие модалки при клике на фон
+    function closeModal(event, modalId) {
+        if (event.target.id === modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+    }
+
+    // Функция для разворачивания/сужения строк с медиа
+    function toggleDetails(rowId) {
+        const row = document.getElementById(rowId);
+        if (row.style.display === 'table-row') {
+            row.style.display = 'none';
+        } else {
+            row.style.display = 'table-row';
+        }
+    }
+
+    // Инициализация при загрузке
+    window.onload = recalculateTotals;
+</script>
+
+</body>
+</html>
